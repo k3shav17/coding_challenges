@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"unicode"
@@ -22,7 +21,6 @@ func main() {
 		fmt.Println("No such file or directory exists")
 		os.Exit(-1)
 	}
-	fmt.Println(filePath)
 
 	bytes, _ := readFile(filePath)
 	Flags(flag, filePath, &bytes)
@@ -31,13 +29,17 @@ func main() {
 func Flags(flag, filePath string, content *[]byte) {
 	switch flag {
 	case "-c":
-		NoOfBytes(content, filePath)
+		NoOfBytes(content)
+		println(filePath)
 	case "-l":
-		NoOfLines(content, filePath)
+		NoOfLines(content)
+		println(filePath)
 	case "-w":
-		NoOfWords(content, filePath)
+		NoOfWords(content)
+		println(filePath)
 	case "-m":
-		NoOfCharacters(content, filePath)
+		NoOfCharacters(content)
+		println(filePath)
 	default:
 		Help()
 	}
@@ -53,22 +55,22 @@ func Help() {
 	fmt.Println("\t-w\tThe number of words in each input file is written to the standard output.")
 }
 
-func NoOfBytes(content *[]byte, filePath string) {
-	fmt.Print(len(string(*content)), "\t", filePath, "\n") // if it is -c
+func NoOfBytes(content *[]byte) {
+	fmt.Print(len(string(*content)), "\t") // if it is -c
 }
 
-func NoOfLines(content *[]byte, filePath string) {
-	fmt.Print(len(strings.Split(string(*content), "\n")), "\t", filePath, "\n") // if it is -l
+func NoOfLines(content *[]byte) {
+	fmt.Print(len(strings.Split(string(*content), "\n")), "\t") // if it is -l
 }
 
-func NoOfWords(content *[]byte, filePath string) {
+func NoOfWords(content *[]byte) {
 	splitStr := strings.FieldsFunc(string(*content), func(c rune) bool {
 		return unicode.IsSpace(c)
 	})
-	fmt.Print(len(splitStr), "\t", filePath, "\n") // if it is -w
+	fmt.Print(len(splitStr), "\t") // if it is -w
 }
 
-func NoOfCharacters(content *[]byte, filePath string) {
+func NoOfCharacters(content *[]byte) {
 	charCount := 0
 	contentOfFile := string(*content)
 	for _, r := range contentOfFile {
@@ -76,7 +78,7 @@ func NoOfCharacters(content *[]byte, filePath string) {
 			charCount++
 		}
 	}
-	fmt.Println(charCount, "\t", filePath, "\n") // if it is -m
+	fmt.Print(charCount, "\t") // if it is -m
 }
 
 func isChar(r rune) bool {
@@ -88,7 +90,7 @@ func isChar(r rune) bool {
 }
 
 func readFile(filePath string) ([]byte, error) {
-	bytes, err := ioutil.ReadFile(filePath)
+	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Errorf("Unable to read the file %q", filePath)
 	}
@@ -111,10 +113,11 @@ func noFlags(commandLineArgs []string) {
 	if len(commandLineArgs) == 1 && fileExists(commandLineArgs[0]) {
 		var filePath string = commandLineArgs[0]
 		content, _ := readFile(filePath)
-		NoOfBytes(&content, filePath)
-		NoOfLines(&content, filePath)
-		NoOfWords(&content, filePath)
-		NoOfCharacters(&content, filePath)
+		NoOfBytes(&content)
+		NoOfLines(&content)
+		NoOfWords(&content)
+		NoOfCharacters(&content)
+		fmt.Println(" ", filePath)
 		os.Exit(0)
 	}
 }
