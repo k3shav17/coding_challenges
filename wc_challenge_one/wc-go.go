@@ -1,17 +1,50 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"unicode"
 )
 
+const (
+	Lines      string = "-l"
+	Words      string = "-w"
+	CharBytes  string = "-c"
+	Characters string = "-m"
+)
+
+func readFromStdInput(option string) {
+	reader := bufio.NewReader(os.Stdin)
+	count := 0
+	for {
+		line, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			count++
+			break
+		}
+		if option == Lines {
+			count++
+		} else {
+			count += Flags(option, &line)
+		}
+	}
+	fmt.Println(count)
+	os.Exit(0)
+}
+
 func main() {
+
 	commandLineArgs := os.Args[1:]
 	if commandLineArgs[0] == "-h" {
 		Help()
 		os.Exit(0)
+	}
+
+	if len(commandLineArgs) == 1 {
+		readFromStdInput(commandLineArgs[0])
 	}
 
 	noFlags(commandLineArgs)
@@ -23,26 +56,23 @@ func main() {
 	}
 
 	bytes, _ := readFile(filePath)
-	Flags(flag, filePath, &bytes)
+	fmt.Println(Flags(flag, &bytes), filePath, "\t")
 }
 
-func Flags(flag, filePath string, content *[]byte) {
+func Flags(flag string, content *[]byte) int {
 	switch flag {
-	case "-c":
-		NoOfBytes(content)
-		println(filePath)
-	case "-l":
-		NoOfLines(content)
-		println(filePath)
-	case "-w":
-		NoOfWords(content)
-		println(filePath)
-	case "-m":
-		NoOfCharacters(content)
-		println(filePath)
+	case CharBytes:
+		return NoOfBytes(content)
+	case Lines:
+		return NoOfLines(content)
+	case Words:
+		return NoOfWords(content)
+	case Characters:
+		return NoOfCharacters(content)
 	default:
 		Help()
 	}
+	return -1
 }
 
 func Help() {
@@ -55,22 +85,22 @@ func Help() {
 	fmt.Println("\t-w\tThe number of words in each input file is written to the standard output.")
 }
 
-func NoOfBytes(content *[]byte) {
-	fmt.Print(len(string(*content)), "\t") // if it is -c
+func NoOfBytes(content *[]byte) int {
+	return len(string(*content)) // if it is -c
 }
 
-func NoOfLines(content *[]byte) {
-	fmt.Print(len(strings.Split(string(*content), "\n")), "\t") // if it is -l
+func NoOfLines(content *[]byte) int {
+	return len(strings.Split(string(*content), "\n")) // if it is -l
 }
 
-func NoOfWords(content *[]byte) {
+func NoOfWords(content *[]byte) int {
 	splitStr := strings.FieldsFunc(string(*content), func(c rune) bool {
 		return unicode.IsSpace(c)
 	})
-	fmt.Print(len(splitStr), "\t") // if it is -w
+	return len(splitStr) // if it is -w
 }
 
-func NoOfCharacters(content *[]byte) {
+func NoOfCharacters(content *[]byte) int {
 	charCount := 0
 	contentOfFile := string(*content)
 	for _, r := range contentOfFile {
@@ -78,7 +108,7 @@ func NoOfCharacters(content *[]byte) {
 			charCount++
 		}
 	}
-	fmt.Print(charCount, "\t") // if it is -m
+	return charCount // if it is -m
 }
 
 func isChar(r rune) bool {
