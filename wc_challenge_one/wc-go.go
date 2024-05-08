@@ -32,7 +32,7 @@ func readFromStdInput(option string) {
 		}
 	}
 	fmt.Println(count)
-	os.Exit(0)
+  os.Exit(0)
 }
 
 func main() {
@@ -41,10 +41,6 @@ func main() {
 	if commandLineArgs[0] == "-h" {
 		Help()
 		os.Exit(0)
-	}
-
-	if len(commandLineArgs) == 1 {
-		readFromStdInput(commandLineArgs[0])
 	}
 
 	noFlags(commandLineArgs)
@@ -83,6 +79,7 @@ func Help() {
 		"\n\t\tIf the current locale does not support multibyte characters, this is equivalent to the -c option.",
 		"\n\t\tThis will cancel out any prior usage of the -c option.")
 	fmt.Println("\t-w\tThe number of words in each input file is written to the standard output.")
+  os.Exit(0)
 }
 
 func NoOfBytes(content *[]byte) int {
@@ -143,11 +140,7 @@ func noFlags(commandLineArgs []string) {
 	if len(commandLineArgs) == 1 && fileExists(commandLineArgs[0]) {
 		var filePath string = commandLineArgs[0]
 		content, _ := readFile(filePath)
-		NoOfBytes(&content)
-		NoOfLines(&content)
-		NoOfWords(&content)
-		NoOfCharacters(&content)
-		fmt.Println(" ", filePath)
+    fmt.Printf("%d %d %d %d %s\n", NoOfBytes(&content), NoOfLines(&content), NoOfWords(&content), NoOfCharacters(&content), filePath)
 		os.Exit(0)
 	}
 }
